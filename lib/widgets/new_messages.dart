@@ -28,7 +28,7 @@ class _NewMessageState extends State<NewMessage> {
     }
 
     FocusScope.of(context).unfocus();
-        _messageController.clear();
+    _messageController.clear();
 
     final user = FirebaseAuth.instance.currentUser!;
     final userData = await FirebaseFirestore.instance
