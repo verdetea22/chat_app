@@ -7,7 +7,7 @@ class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() {
+  State<AuthScreen> createState() {
     return _AuthScreenState();
   }
 }
@@ -19,35 +19,35 @@ class _AuthScreenState extends State<AuthScreen> {
   var _enteredEmail = '';
   var _enteredPassword = '';
 
-  void _submit () async {
+  void _submit() async {
     final isValid = _form.currentState!.validate();
 
-    if (!isValid){
+    if (!isValid) {
       return;
     }
 
     _form.currentState!.save();
 
-    if (_isLogin) {
-      //log users in
-    } else {
-      try 
-      {
-        final userCredentials = await _firebase.createUserWithEmailAndPassword(
-        email: _enteredEmail, 
-        password: _enteredPassword);
+    try {
+      if (_isLogin) {
+        final userCredentials = await _firebase.signInWithEmailAndPassword(
+            email: _enteredEmail, password: _enteredPassword);
         print(userCredentials);
-      } on FirebaseAuthException catch (error) {
-        if(error.code == 'email-already-in-user') {
-
-        }
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error.message ?? 'Authentication failed'),
-          ),
-        );
+      } else {
+        final userCredentials = await _firebase.createUserWithEmailAndPassword(
+            email: _enteredEmail, password: _enteredPassword);
+        print(userCredentials);
       }
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'email-already-in-use') {
+        // ...
+      }
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message ?? 'Authentication failed.'),
+        ),
+      );
     }
   }
 
@@ -65,7 +65,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   top: 30,
                   bottom: 20,
                   left: 20,
-                  right: 20
+                  right: 20,
                 ),
                 width: 200,
                 child: Image.asset('assets/images/chat.png'),
@@ -82,15 +82,17 @@ class _AuthScreenState extends State<AuthScreen> {
                         children: [
                           TextFormField(
                             decoration: const InputDecoration(
-                              labelText: 'Email Address'
-                            ),
+                                labelText: 'Email Address'),
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
                             validator: (value) {
-                              if (value == null || value.trim().isEmpty || !value.contains('@')) {
-                                return 'Please enter a valid email address';
+                              if (value == null ||
+                                  value.trim().isEmpty ||
+                                  !value.contains('@')) {
+                                return 'Please enter a valid email address.';
                               }
+
                               return null;
                             },
                             onSaved: (value) {
@@ -98,13 +100,12 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           TextFormField(
-                            decoration: const InputDecoration(
-                              labelText: 'Password'
-                            ),
+                            decoration:
+                                const InputDecoration(labelText: 'Password'),
                             obscureText: true,
                             validator: (value) {
                               if (value == null || value.trim().length < 6) {
-                                return 'Password must be at least 6 characters long';
+                                return 'Password must be at least 6 characters long.';
                               }
                               return null;
                             },
@@ -114,20 +115,23 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                           const SizedBox(height: 12),
                           ElevatedButton(
-                            onPressed: _submit, 
-                            child: Text(_isLogin
-                             ? 'Login'
-                             : 'Signup'),
+                            onPressed: _submit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .primaryContainer,
+                            ),
+                            child: Text(_isLogin ? 'Login' : 'Signup'),
                           ),
                           TextButton(
                             onPressed: () {
                               setState(() {
                                 _isLogin = !_isLogin;
                               });
-                            }, 
+                            },
                             child: Text(_isLogin
-                             ? 'Create an account'
-                             : 'I have an account'),
+                                ? 'Create an account'
+                                : 'I already have an account'),
                           ),
                         ],
                       ),
