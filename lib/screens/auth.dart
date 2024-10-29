@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -41,6 +42,15 @@ class _AuthScreenState extends State<AuthScreen> {
         final userCredentials = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
         print(userCredentials);
+
+        await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredentials.user!.uid)
+          .set({
+            'username': 'to be done...',
+            'email': _enteredEmail,
+
+          });
       }
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {
