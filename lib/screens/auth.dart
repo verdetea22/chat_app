@@ -117,6 +117,8 @@ class _AuthScreenState extends State<AuthScreen> {
                               _enteredEmail = value!;
                             },
                           ),
+                          
+                          if (!_isLogin)
                           TextFormField(
                             decoration: 
                               const InputDecoration(labelText: 'Username'),
@@ -133,7 +135,6 @@ class _AuthScreenState extends State<AuthScreen> {
                               _enteredUsername = value!;
                             },
                           ),
-                          if (!_isLogin)
                             TextFormField(
                               decoration:
                                   const InputDecoration(labelText: 'Password'),
